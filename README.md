@@ -9,6 +9,8 @@ This dataset contains information about property sales in London, with each entr
 
 ## The data has been split into two groups:
 
+Inside the zip file, you can find the datasets.
+
 ### training set (train.csv)
 ### test set (test.csv)
 
