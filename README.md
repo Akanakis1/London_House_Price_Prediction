@@ -15,7 +15,8 @@ Inside the zip file, you can find the datasets.
 ### test set (test.csv)
 
 ## Columns
-- fullAddress Type: String
+- fullAddress
+Type: String
 Description: The full address of the property, including street name, city, and postal code.
 
 - postcode Type: String
