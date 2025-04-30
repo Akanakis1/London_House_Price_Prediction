@@ -1,7 +1,7 @@
 # London House Price Prediction: Advanced Machine Learning Techniques
 
 ### 📊 Data Source  
-The dataset used for this project is sourced from Kaggle.
+The dataset used for this project is sourced from Kaggle.  
 [Kaggle London House Price Dataset](https://www.kaggle.com/competitions/london-house-price-prediction-advanced-techniques)
 
 ### 🔗 Kaggle Project  
