@@ -1,20 +1,37 @@
 # London House Price Prediction: Advanced Machine Learning Techniques
 
----
-
 ## 📁 Dataset Overview
 
 This project aims to predict house prices in London using a variety of machine learning techniques. The dataset contains valuable features, such as property characteristics, geographic location, energy ratings, and sale history. The goal is to use these features to develop a robust model that can accurately predict house prices.
 
 ### 📊 Data Source  
+The dataset used for this project is sourced from Kaggle.
 [Kaggle London House Price Dataset](https://www.kaggle.com/competitions/london-house-price-prediction-advanced-techniques)
 
 ### 🔗 Kaggle Project  
 Check out my solution and code here:  
 **[London House Price Prediction – Alexandros Kanakis](https://www.kaggle.com/code/alexandroskanakis/london-house-price-prediction)**
 
-The dataset includes information about various property sales in London, with each entry representing a single sale transaction.
-Below are the key features provided:
+The dataset contains information on several property sales in London, where each entry corresponds to a unique sale transaction.
+Below are the key variables included in the dataset:
+
+---
+
+## 📁 Dataset Overview
+
+Here’s a quick overview of the files in this repository:
+
+- **`fullAddress`**: Jupyter Notebook containing the project code, data analysis, and model building.
+
+- **`London_Price_Predictions.csv`**: Dataset containing the property features and sale prices.
+
+- **`requirements.txt`**: List of dependencies required for running the project.
+
+- **`test.csv`**: Test dataset for model evaluation.
+
+- **`train.csv`**: Training dataset used to build the models.
+
+---
 
 ## 📘 Data Dictionary
 
