@@ -61,18 +61,11 @@ Predict the **sale price** (`price`) of London properties using machine learning
   - **MSE / RMSE** – Penalizes larger errors  
 
 **Best Model:**  
-<<<<<<< HEAD
 
 - **XGBoost Regressor** with optimized hyperparameters and GPU acceleration.
 
 ---
 
-=======
-- **XGBoost Regressor** with optimized hyperparameters and GPU acceleration.
-
----
-
->>>>>>> 860026cc897ab91ba7f5857d3e1ee9fd9937cb37
 ## 🏆 Achievements
 
 - Developed an advanced feature engineering pipeline, including geospatial clustering.  
