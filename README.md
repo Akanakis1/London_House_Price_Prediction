@@ -8,131 +8,69 @@
 
 ## 📊 Project Overview
 
-This project focuses on predicting **property sale prices in London** using advanced machine learning techniques. Leveraging property features, geolocation, and sale timing, the aim is to build highly accurate and interpretable predictive models.
-
----
-
-## 🔍 Motivation
-
-Property prices in London fluctuate due to many factors, including location, house features, and market conditions. Accurate price predictions assist buyers, sellers, investors, and policymakers in making informed decisions. This project explores advanced feature engineering, spatial clustering, and gradient boosting to capture these complexities.
-
----
-
-## 📘 Dataset Overview
-
-The dataset contains detailed information on property sales across London. Each record represents a unique transaction.
-
-### ✨ Key Variables
-
-<div align="center">
-
-| Variable              | Description                                      |
-|-----------------------|-------------------------------------------------|
-| `fullAddress`         | Complete property address including street, city, postal code |
-| `postcode`            | Postal code of the property                      |
-| `country`             | Country (e.g., "England")                        |
-| `outcode`             | Outward postcode representing district/region   |
-| `latitude`            | Geographic latitude                              |
-| `longitude`           | Geographic longitude                             |
-| `bathrooms`           | Number of bathrooms                              |
-| `bedrooms`            | Number of bedrooms                               |
-| `floorAreaSqM`        | Floor area in square meters                       |
-| `livingRooms`         | Number of living rooms                           |
-| `tenure`              | Ownership type (e.g., "Freehold", "Leasehold")  |
-| `propertyType`        | Type of property (e.g., "Flat", "Detached House") |
-| `currentEnergyRating` | Energy rating (e.g., "A", "B", "C", "None")     |
-| `sale_month`          | Month of sale (1–12)                             |
-| `sale_year`           | Year of sale                                    |
-| `price`               | Sale price (target variable)                     |
-
-</div>
+This project focuses on predicting **property sale prices in London** using advanced machine learning regression. The solution involved complex data preparation, including **log-transformation** of the target variable and **geospatial clustering** (KMeans) for enhanced feature engineering. The final model, an **XGBoost Regressor**, significantly outperformed multiple statistical baselines, demonstrating the power of gradient boosting on complex, structured data.
 
 ---
 
 ## 🎯 Project Objective
 
-Predict the **sale price** (`price`) of London properties using machine learning, focusing on:
-
-- **Feature Engineering:** Extracting spatial, temporal, and property-based predictors  
-- **Model Selection:** Testing multiple models to optimize accuracy  
-- **Evaluation Metrics:**  
-  - **R² (R-squared)** – Variance explained  
-  - **MAE (Mean Absolute Error)** – Average error  
-  - **MSE / RMSE** – Penalizes larger errors  
-
-**Best Model:**  
-
-- **XGBoost Regressor** with optimized hyperparameters and GPU acceleration.
+* Build a robust regression model to predict London house prices with maximum accuracy.
+* Implement **log-transformation** of the target price to correct for distribution skew.
+* Conduct **geospatial feature engineering** using KMeans clustering to segment the London market.
+* Compare and validate performance against four statistical baselines (Mean, Median, Quantile, Constant).
+* Select the best model based on the lowest **Mean Absolute Error (MAE)**.
 
 ---
 
-## 🏆 Achievements
+## 🏆 Achievements & Results
 
-- Developed an advanced feature engineering pipeline, including geospatial clustering.  
-- Built a robust predictive model with interpretable outcomes.  
-- Provided insights on factors influencing London house prices.
+### Model Evaluation Results
+
+The **XGBoost Regressor** provided vastly superior results compared to all baselines on the validation set, validating the choice of advanced feature engineering and modeling.
+
+<div align="center">
+  
+| Model Name | R^2 Score (Valid) | **Mean Absolute Error (MAE) Valid** | Root Mean Squared Error (RMSE) Valid |
+| :--- | :--- | :--- | :--- |
+| Mean Baseline | -0.0430 | 393,537.58 | 1,133,679.42 |
+| Median Baseline | -0.0401 | 393,426.61 | 1,132,113.58 |
+| Quantile Baseline | -0.0015 | 468,680.56 | 1,110,880.26 |
+| Constant Baseline | -0.2994 | 607,360.79 | 1,265,355.27 |
+| **XGBoost Regression** | **0.6548** | **128,308.44** | **652,160.64** |
+
+</div>
+
+**Key Achievements:**
+* Achieved a strong $\text{R}^2$ of **$0.65$** and an MAE of **$£128,308$** with the XGBoost Regressor.
+* Implemented **geospatial feature engineering** using KMeans to successfully segment and model location-based price variances.
+* Successfully applied **log-transformation** and inverse-transformation to handle a highly skewed financial target variable.
 
 ---
 
 ## 🔧 Tools & Technologies
 
-- **Programming Language:** Python  
-- **Libraries:** Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn, XGBoost  
-- **Platform:** Kaggle
+* **Programming Language:** Python
+* **Libraries:** **Pandas**, **NumPy**, **Scikit-learn**, **XGBoost** (Regresser)
+* **Key Techniques:** Log Transformation, **KMeans Clustering**, Gradient Boosting (Regression)
 
 ---
 
 ## 📁 Repository Contents
 
 <div align="center">
-
-| File                          | Description                                              |
-|-------------------------------|----------------------------------------------------------|
-| `house_price_pipeline.py`      | End-to-end Python script for training, evaluation, and submission |
-| `train.csv`                   | Training data with features and target                   |
-| `test.csv`                    | Test data for predictions                                |
-| `London_Price_Predictions.csv`| Submission file with model predictions                   |
-| `requirements.txt`            | Python package dependencies                              |
+  
+| File | Description |
+| :--- | :--- |
+| `london_house_price_prediction.py` | Full pipeline: preprocessing, modeling, evaluation, prediction |
+| `train.csv`, `test.csv` | Dataset files |
+| `data/final/London_Price_Predictions.csv` | Submission file with model predictions |
+| `notebooks/Exploratory_Data_Analysis_(EDA).ipynb` | Notebook for initial data analysis and feature exploration |
 
 </div>
 
 ---
 
-## 📂 Project Directory Structure
-
-London_House_Price_Prediction/  
-├── .venv/  
-├── .vscode/  
-├── data/  
-│ ├── final/  
-│ │ └── London_Price_Predictions.csv  
-│ ├── test.csv  
-│ └── train.csv  
-├── notebooks/  
-│ ├── Exploratory_Data_Analysis_(EDA).ipynb  
-├── london_house_price_prediction.py  
-├── README.md  
-├── requirements.txt  
-
-- **data**: Raw and processed datasets, plus predictions  
-- **data/final**: Model output files for submission  
-- **notebooks**: Exploratory data analysis work  
-- **house_price_pipeline.py**: Main executable script  
-- **requirements.txt**: Dependencies  
-- **README.md**: This documentation
-
----
-
 ## 🚀 Project Workflow Diagram
 
-A[Load Data] -> B[Preprocessing & Cleaning]  
-B  ->  C [Feature Engineering]  
-C  ->  D [Geospatial Clustering (KMeans)]  
-D  ->  E [Train/Validation Split]  
-E  ->  F [Model Training (Baselines + XGBoost)]  
-F  ->  G [Model Evaluation]  
-G  ->  H [Best Model Selection]  
-H  ->  I [Make Predictions]  
-I  ->  J [Save Submission File]  
-
+A[Load Data] $\rightarrow$ B[Preprocessing & Cleaning] $\rightarrow$ C[Feature Engineering] $\rightarrow$ D[Geospatial Clustering (KMeans)] $\rightarrow$ E[Train/Validation Split] $\rightarrow$ F[Model Training (Baselines + XGBoost)] $\rightarrow$ G[Model Evaluation] $\rightarrow$ H[Best Model Selection] $\rightarrow$ I[Predict on Test Set] $\rightarrow$ J[Save Submission File]
 ---
