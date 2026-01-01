@@ -1,6 +1,6 @@
 # 💂🏼‍♂️🇬🇧 London House Price Prediction — Advanced ML Regression (XGBoost + Geo Clustering)
 
-Predict **London property sale prices** using a full end-to-end ML workflow:
+Predict **London property sale prices** using a full end-to-end ML workflow:  
 **data cleaning → feature engineering → geospatial clustering → baseline benchmarking → XGBoost regression → submission file**.
 
 🔗 Kaggle: https://www.kaggle.com/code/alexandroskanakis/london-house-price-prediction
