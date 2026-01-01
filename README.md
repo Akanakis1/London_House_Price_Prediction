@@ -1,76 +1,83 @@
-# 💂🏼‍♂️🇬🇧 London House Price Prediction – Advanced ML Techniques
+# 💂🏼‍♂️🇬🇧 London House Price Prediction — Advanced ML Regression (XGBoost + Geo Clustering)
 
-[![Kaggle](https://img.shields.io/badge/Kaggle-View%20Project-blue?logo=kaggle)](https://www.kaggle.com/code/alexandroskanakis/london-house-price-prediction)
-[![Python](https://img.shields.io/badge/Python-3.12-green?logo=python)](https://www.python.org/)
-[![XGBoost](https://img.shields.io/badge/XGBoost-Machine%20Learning-orange?logo=xgboost)]
+Predict **London property sale prices** using a full end-to-end ML workflow:
+**data cleaning → feature engineering → geospatial clustering → baseline benchmarking → XGBoost regression → submission file**.
 
----
-
-## 📊 Project Overview
-
-This project focuses on predicting **property sale prices in London** using advanced machine learning regression. The solution involved complex data preparation, including **log-transformation** of the target variable and **geospatial clustering** (KMeans) for enhanced feature engineering. The final model, an **XGBoost Regressor**, significantly outperformed multiple statistical baselines, demonstrating the power of gradient boosting on complex, structured data.
+🔗 Kaggle: https://www.kaggle.com/code/alexandroskanakis/london-house-price-prediction
 
 ---
 
-## 🎯 Project Objective
-
-* Build a robust regression model to predict London house prices with maximum accuracy.
-* Implement **log-transformation** of the target price to correct for distribution skew.
-* Conduct **geospatial feature engineering** using KMeans clustering to segment the London market.
-* Compare and validate performance against four statistical baselines (Mean, Median, Quantile, Constant).
-* Select the best model based on the lowest **Mean Absolute Error (MAE)**.
+## 🔥 Why this project stands out
+- Built a **robust regression pipeline** with advanced feature engineering and validation benchmarking.
+- Handled a highly skewed target using **log-transformation** + inverse transform for evaluation/predictions.
+- Added **geospatial intelligence** with KMeans clustering (latitude/longitude) and cluster-level price statistics.
+- Benchmarked against multiple **statistical baselines** to prove the ML lift (Mean/Median/Quantile/Constant).
 
 ---
 
-## 🏆 Achievements & Results
+## 🏆 Results (Validation Set)
+Best model: **XGBoost Regressor**
 
-### Model Evaluation Results
-
-The **XGBoost Regressor** provided vastly superior results compared to all baselines on the validation set, validating the choice of advanced feature engineering and modeling.
-
-<div align="center">
-  
-| Model Name | R^2 Score (Valid) | **Mean Absolute Error (MAE) Valid** | Root Mean Squared Error (RMSE) Valid |
-| :--- | :--- | :--- | :--- |
+| Model | R² (Valid) | MAE (Valid) | RMSE (Valid) |
+|---|---:|---:|---:|
 | Mean Baseline | -0.0430 | 393,537.58 | 1,133,679.42 |
 | Median Baseline | -0.0401 | 393,426.61 | 1,132,113.58 |
 | Quantile Baseline | -0.0015 | 468,680.56 | 1,110,880.26 |
 | Constant Baseline | -0.2994 | 607,360.79 | 1,265,355.27 |
 | **XGBoost Regression** | **0.6548** | **128,308.44** | **652,160.64** |
 
-</div>
-
-**Key Achievements:**
-* Achieved a strong $\text{R}^2$ of **$0.65$** and an MAE of **$£128,308$** with the XGBoost Regressor.
-* Implemented **geospatial feature engineering** using KMeans to successfully segment and model location-based price variances.
-* Successfully applied **log-transformation** and inverse-transformation to handle a highly skewed financial target variable.
+✅ Key takeaway: **R² ≈ 0.65** and **MAE ≈ £128K**, significantly outperforming statistical baselines.
 
 ---
 
-## 🔧 Tools & Technologies
+## 🧠 Method (What I did)
 
-* **Programming Language:** Python
-* **Libraries:** **Pandas**, **NumPy**, **Scikit-learn**, **XGBoost** (Regresser)
-* **Key Techniques:** Log Transformation, **KMeans Clustering**, Gradient Boosting (Regression)
+### 1) Data preprocessing & cleaning
+- Merged train + test using an `is_train` flag for consistent transformations.
+- Filled missing values:
+  - categorical → `"Unknown"` (e.g., tenure, propertyType, currentEnergyRating)
+  - numerical → `0` (e.g., bedrooms, bathrooms, floorAreaSqM, livingRooms)
+
+### 2) Feature engineering
+- Split `fullAddress` into **street / city / postcode**.
+- Dropped `country` if only one unique value.
+- Applied **log1p transform** to `price` (target) and `floorAreaSqM` (skew handling).
+- Time features:
+  - `sale_date`, `days_since_first_sale`, `sale_quarter`
+  - seasonal encoding: `sale_month_sin`, `sale_month_cos`
+- Room density features:
+  - `total_rooms`, `room_density`
+
+### 3) Encoding strategy
+- Frequency encoding: street, city, postcode, outcode, tenure, propertyType, energy rating.
+- Label encoding: outcode
+- One-hot encoding: tenure, propertyType, energy rating, outcode, city
+- Dropped raw `street` and `postcode` after encoding (to control dimensionality)
+
+### 4) Geospatial clustering (location-aware pricing)
+- Standardized latitude/longitude using `StandardScaler`.
+- Used elbow method (k=1..10) and selected **k=4**.
+- Added cluster-level stats:
+  - mean & median price per geo cluster
+
+### 5) Model training & selection
+- Train/validation split: 90/10, `random_state=42`.
+- Baselines: DummyRegressor (mean/median/quantile/constant).
+- Main model: **XGBoost Regressor** (GPU enabled via `device="cuda"`).
+- Evaluation performed after inverse log transform to report metrics in original £ scale.
 
 ---
 
-## 📁 Repository Contents
-
-<div align="center">
-  
-| File | Description |
-| :--- | :--- |
-| `london_house_price_prediction.py` | Full pipeline: preprocessing, modeling, evaluation, prediction |
-| `train.csv`, `test.csv` | Dataset files |
-| `data/final/London_Price_Predictions.csv` | Submission file with model predictions |
-| `notebooks/Exploratory_Data_Analysis_(EDA).ipynb` | Notebook for initial data analysis and feature exploration |
-
-</div>
+## 📁 Repository contents
+- `london_house_price_prediction.py` — full pipeline: preprocessing → clustering → training → evaluation → submission
+- `notebooks/Exploratory_Data_Analysis_(EDA).ipynb` — EDA and feature exploration
+- `data/train.csv`, `data/test.csv` — dataset files
+- `data/final/London_Price_Predictions.csv` — final predictions output
 
 ---
 
-## 🚀 Project Workflow Diagram
+## 🚀 How to run
 
-A[Load Data] $\rightarrow$ B[Preprocessing & Cleaning] $\rightarrow$ C[Feature Engineering] $\rightarrow$ D[Geospatial Clustering (KMeans)] $\rightarrow$ E[Train/Validation Split] $\rightarrow$ F[Model Training (Baselines + XGBoost)] $\rightarrow$ G[Model Evaluation] $\rightarrow$ H[Best Model Selection] $\rightarrow$ I[Predict on Test Set] $\rightarrow$ J[Save Submission File]
----
+### 1) Install requirements
+```bash
+pip install -r requirements.txt
