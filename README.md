@@ -1,83 +1,98 @@
-# 💂🏼‍♂️🇬🇧 London House Price Prediction — Advanced ML Regression (XGBoost + Geo Clustering)
+# London House Price Prediction — Regression-Based Price Modeling
 
-Predict **London property sale prices** using a full end-to-end ML workflow:  
-**data cleaning → feature engineering → geospatial clustering → baseline benchmarking → XGBoost regression → submission file**.
-
-🔗 Kaggle: https://www.kaggle.com/code/alexandroskanakis/london-house-price-prediction
-
----
-
-## 🔥 Why this project stands out
-- Built a **robust regression pipeline** with advanced feature engineering and validation benchmarking.
-- Handled a highly skewed target using **log-transformation** + inverse transform for evaluation/predictions.
-- Added **geospatial intelligence** with KMeans clustering (latitude/longitude) and cluster-level price statistics.
-- Benchmarked against multiple **statistical baselines** to prove the ML lift (Mean/Median/Quantile/Constant).
+This project models London property sale prices using a structured regression workflow with
+location-aware feature engineering. The emphasis is on **clean preprocessing, benchmarking
+against simple baselines, and interpretable performance gains**, rather than algorithmic complexity.
 
 ---
 
-## 🏆 Results (Validation Set)
-Best model: **XGBoost Regressor**
+## Project Overview
 
-| Model | R² (Valid) | MAE (Valid) | RMSE (Valid) |
-|---|---:|---:|---:|
-| Mean Baseline | -0.0430 | 393,537.58 | 1,133,679.42 |
-| Median Baseline | -0.0401 | 393,426.61 | 1,132,113.58 |
-| Quantile Baseline | -0.0015 | 468,680.56 | 1,110,880.26 |
-| Constant Baseline | -0.2994 | 607,360.79 | 1,265,355.27 |
-| **XGBoost Regression** | **0.6548** | **128,308.44** | **652,160.64** |
+**Objective**  
+Predict residential property sale prices in London and evaluate whether a regression model
+can materially outperform simple statistical baselines.
 
-✅ Key takeaway: **R² ≈ 0.65** and **MAE ≈ £128K**, significantly outperforming statistical baselines.
+**Workflow**  
+Data cleaning → feature engineering → geospatial clustering → baseline benchmarking →
+regression modeling → prediction export.
 
----
-
-## 🧠 Method (What I did)
-
-### 1) Data preprocessing & cleaning
-- Merged train + test using an `is_train` flag for consistent transformations.
-- Filled missing values:
-  - categorical → `"Unknown"` (e.g., tenure, propertyType, currentEnergyRating)
-  - numerical → `0` (e.g., bedrooms, bathrooms, floorAreaSqM, livingRooms)
-
-### 2) Feature engineering
-- Split `fullAddress` into **street / city / postcode**.
-- Dropped `country` if only one unique value.
-- Applied **log1p transform** to `price` (target) and `floorAreaSqM` (skew handling).
-- Time features:
-  - `sale_date`, `days_since_first_sale`, `sale_quarter`
-  - seasonal encoding: `sale_month_sin`, `sale_month_cos`
-- Room density features:
-  - `total_rooms`, `room_density`
-
-### 3) Encoding strategy
-- Frequency encoding: street, city, postcode, outcode, tenure, propertyType, energy rating.
-- Label encoding: outcode
-- One-hot encoding: tenure, propertyType, energy rating, outcode, city
-- Dropped raw `street` and `postcode` after encoding (to control dimensionality)
-
-### 4) Geospatial clustering (location-aware pricing)
-- Standardized latitude/longitude using `StandardScaler`.
-- Used elbow method (k=1..10) and selected **k=4**.
-- Added cluster-level stats:
-  - mean & median price per geo cluster
-
-### 5) Model training & selection
-- Train/validation split: 90/10, `random_state=42`.
-- Baselines: DummyRegressor (mean/median/quantile/constant).
-- Main model: **XGBoost Regressor** (GPU enabled via `device="cuda"`).
-- Evaluation performed after inverse log transform to report metrics in original £ scale.
+**Kaggle notebook**  
+https://www.kaggle.com/code/alexandroskanakis/london-house-price-prediction
 
 ---
 
-## 📁 Repository contents
-- `london_house_price_prediction.py` — full pipeline: preprocessing → clustering → training → evaluation → submission
-- `notebooks/Exploratory_Data_Analysis_(EDA).ipynb` — EDA and feature exploration
-- `data/train.csv`, `data/test.csv` — dataset files
-- `data/final/London_Price_Predictions.csv` — final predictions output
+## Why This Project Matters
+
+- Demonstrates **end-to-end regression analysis** on real, messy property data
+- Explicitly benchmarks ML performance against **mean, median, and quantile baselines**
+- Incorporates **location intelligence** via geospatial clustering
+- Reports results in **business-relevant metrics** (£ MAE, R²)
 
 ---
 
-## 🚀 How to run
+## Results (Validation Set)
 
-### 1) Install requirements
-```bash
-pip install -r requirements.txt
+Best model: **Gradient-Boosted Regression (XGBoost)**
+
+| Model               | R² (Valid) | MAE (Valid) | RMSE (Valid) |
+|---------------------|-----------:|------------:|-------------:|
+| Mean Baseline       | -0.0430    | £393,538    | £1,133,679   |
+| Median Baseline     | -0.0401    | £393,427    | £1,132,114   |
+| Quantile Baseline   | -0.0015    | £468,681    | £1,110,880   |
+| Constant Baseline   | -0.2994    | £607,361    | £1,265,355   |
+| **XGBoost Regression** | **0.6548** | **£128,308** | **£652,161** |
+
+**Key takeaway**  
+The regression model achieves **R² ≈ 0.65** and **MAE ≈ £128K**, substantially outperforming
+all statistical baselines.
+
+---
+
+## Methodology
+
+### Data Preparation
+- Combined train and test datasets using an `is_train` flag to ensure consistent transformations
+- Handled missing values:
+  - categorical → `"Unknown"`
+  - numerical → `0`
+- Dropped non-informative fields (e.g. constant country field)
+
+### Feature Engineering
+- Address decomposition (street, city, postcode)
+- Temporal features (sale date, quarters, seasonality encoding)
+- Size and density features (total rooms, room density)
+- Log transformation of skewed variables (target price, floor area)
+
+### Location Intelligence
+- Standardized latitude and longitude
+- Applied **KMeans clustering (k=4)** to capture location-driven price patterns
+- Added cluster-level price statistics (mean and median)
+
+### Modeling & Evaluation
+- Train/validation split: 90/10
+- Benchmarks: mean, median, quantile, constant predictors
+- Main model: gradient-boosted regression
+- Metrics reported after inverse log transform to preserve £ interpretability
+
+---
+
+## Repository Structure
+
+├── data/  
+│ ├── train.csv  
+│ ├── test.csv  
+│ └── final/  
+│ └── London_Price_Predictions.csv  
+├── notebooks/  
+│ └── Exploratory_Data_Analysis_(EDA).ipynb  
+├── london_house_price_prediction.py  
+├── requirements.txt  
+└── README.md  
+
+---
+
+## How to Run
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
