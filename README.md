@@ -40,11 +40,13 @@ Best model: **Gradient-Boosted Regression (XGBoost)**
 | Median Baseline     | -0.0401    | £393,427    | £1,132,114   |
 | Quantile Baseline   | -0.0015    | £468,681    | £1,110,880   |
 | Constant Baseline   | -0.2994    | £607,361    | £1,265,355   |
-| **XGBoost Regression** | **0.6548** | **£128,308** | **£652,161** |
+| **XGBoost Regression** | **0.6531** | **£127,713** | **£653,804** |
 
 **Key takeaway**  
-The regression model achieves **R² ≈ 0.65** and **MAE ≈ £128K**, substantially outperforming
-all statistical baselines.
+The regression model achieves **R² ≈ 0.65** and **MAE ≈ £128K**, substantially 
+outperforming all statistical baselines. Cluster-level price statistics used 
+as features are computed strictly from the training split to avoid target 
+leakage into validation.
 
 ---
 
