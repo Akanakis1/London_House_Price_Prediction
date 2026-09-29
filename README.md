@@ -1,4 +1,4 @@
-# London House Price Prediction — Regression-Based Price Modeling
+# London House Price Prediction: Regression-Based Price Modeling
  
 This project models London property sale prices using a structured regression workflow with
 location-aware feature engineering. The emphasis is on **clean preprocessing, benchmarking
