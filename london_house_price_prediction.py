@@ -8,15 +8,22 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyRegressor
+from sklearn.linear_model import Ridge
+from sklearn.pipeline import Pipeline
 from xgboost import XGBRegressor as xgb
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error, root_mean_squared_error
-import os
+from pathlib import Path
 
 # =====================================================
 # 2. Data Loading
 # =====================================================
-train_df = pd.read_csv(r"data\train.csv")
-test_df = pd.read_csv(r"data\test.csv")
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+OUTPUT_DIR = BASE_DIR / "outputs"
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+train_df = pd.read_csv(DATA_DIR / "train.csv")
+test_df = pd.read_csv(DATA_DIR / "test.csv")
 
 # Add flag before merging datasets
 train_df['is_train'] = 1
@@ -130,7 +137,8 @@ plt.ylabel('Inertia')
 plt.title('Elbow Method for Optimal k')
 plt.xticks(range(1, 11))
 plt.grid(True)
-plt.show()
+plt.savefig(OUTPUT_DIR / "elbow_kmeans.png", dpi=150, bbox_inches="tight")
+plt.close()
 
 ## 4.4 Fit Final KMeans (k=4 as chosen)
 # NOTE: geo_cluster assignment itself only uses latitude/longitude — no target
@@ -152,8 +160,11 @@ features = train_df.drop(columns=['ID', 'price', 'sale_date']).columns.tolist()
 X = train_df[features]
 y = train_df['price']
 
-## 5.2 Train-Validation Split (done BEFORE any target-derived feature is built)
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=42)
+## 5.2 Train / Validation / Holdout split: 80% / 10% / 10% (done BEFORE any target-derived feature is built)
+# The validation set is used for early stopping and for choosing the best model.
+# The holdout set is touched once, after selection, so its scores are not tuned.
+X_trainval, X_hold, y_trainval, y_hold = train_test_split(X, y, test_size=0.10, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=1/9, random_state=42)
 
 # =====================================================
 # 6. Cluster Price Statistics — LEAKAGE-SAFE VERSION
@@ -181,6 +192,7 @@ def attach_cluster_stats(df):
 
 X_train = attach_cluster_stats(X_train)
 X_val = attach_cluster_stats(X_val)
+X_hold = attach_cluster_stats(X_hold)
 test_df = attach_cluster_stats(test_df)
 
 # Keep the features list in sync with the two new columns
@@ -198,6 +210,7 @@ if non_numeric_cols:
     print(f"WARNING: dropping unencoded non-numeric columns before modeling: {non_numeric_cols}")
     X_train = X_train.drop(columns=non_numeric_cols)
     X_val = X_val.drop(columns=non_numeric_cols)
+    X_hold = X_hold.drop(columns=non_numeric_cols)
     test_df = test_df.drop(columns=non_numeric_cols)
     features = [f for f in features if f not in non_numeric_cols]
 
@@ -231,6 +244,12 @@ models = {
     'Median Baseline': DummyRegressor(strategy="median"),
     'Quantile Baseline': DummyRegressor(strategy="quantile", quantile=0.75),
     'Constant Baseline': DummyRegressor(strategy="constant", constant=0),
+    # A simple linear model on the same features: a fairer yardstick than a constant,
+    # because it shows how much of the gain comes from the features and how much from XGBoost.
+    'Ridge Regression (linear baseline)': Pipeline([
+        ("scale", StandardScaler()),
+        ("ridge", Ridge(alpha=1.0)),
+    ]),
     "XGBoost Regression": xgb(
         n_estimators=1500,
         max_depth=10,
@@ -274,10 +293,29 @@ for name, model in models.items():
         print(f"{metric}: {value:.4f}")
     print("=" * 50, "\n")
 
-## 7.3 Model Selection (Lowest MAE) — now genuinely compares all candidates
+## 7.3 Model Selection (Lowest validation MAE) — compares all candidates
 best_model_name = min(results, key=lambda name: results[name]['Validation']['Mean Absolute Error'])
 best_model = models[best_model_name]
-print(f"Best model selected: {best_model_name}")
+print(f"Best model selected (on the validation set): {best_model_name}")
+
+## 7.4 Holdout evaluation (untouched until now; no tuning or selection used it)
+print("\nHOLDOUT SET EVALUATION (10% of the training data, never used for fitting or selection)")
+rows = []
+for name, model in models.items():
+    hold_metrics = evaluate_model(model, X_hold, y_hold)
+    results[name]["Holdout"] = hold_metrics
+    rows.append({
+        "Model": name,
+        "Validation R2": results[name]["Validation"]["R^2 Score"],
+        "Validation MAE": results[name]["Validation"]["Mean Absolute Error"],
+        "Holdout R2": hold_metrics["R^2 Score"],
+        "Holdout MAE": hold_metrics["Mean Absolute Error"],
+        "Holdout RMSE": hold_metrics["Root Mean Squared Error"],
+    })
+    print(f"{name:<38} R2 {hold_metrics['R^2 Score']:.4f}  MAE {hold_metrics['Mean Absolute Error']:,.0f}  RMSE {hold_metrics['Root Mean Squared Error']:,.0f}")
+metrics_table = pd.DataFrame(rows)
+metrics_table.to_csv(OUTPUT_DIR / "model_metrics.csv", index=False)
+print(f"\nMetrics saved to {OUTPUT_DIR / 'model_metrics.csv'}")
 
 # =====================================================
 # 8. Submission File Creation
@@ -292,9 +330,9 @@ def create_submission(best_model, test_df, features, id_col='ID', filename='Lond
     # Keep only ID + Price
     London_Price_Predictions = submission_df[[id_col, 'price']]
     # Save CSV
-    output_dir = r'data\final'
-    os.makedirs(output_dir, exist_ok=True)
-    London_Price_Predictions.to_csv(os.path.join(output_dir, filename), index=False)
+    output_dir = DATA_DIR / "final"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    London_Price_Predictions.to_csv(output_dir / filename, index=False)
     print(f"Submission file saved as '{filename}'")
 
 # Generate Final Submission
